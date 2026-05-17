@@ -6,10 +6,12 @@ import Link from 'next/link';
 export default function HomePage() {
   const [jobs, setJobs] = useState([]);
   const [category, setCategory] = useState('');
+  const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   const categories = ['All Categories', 'Plumbing', 'Electrical', 'Painting', 'Joinery', 'Other'];
+  const statuses = ['All Status', 'Open', 'In Progress', 'Closed'];
 
   const statusColors = {
     'Open':        'bg-green-100 text-green-600 border border-green-200',
@@ -27,12 +29,16 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [category]);
+  }, [category, status]);
 
   async function fetchJobs() {
     setLoading(true);
     try {
-      const query = category && category !== 'All Categories' ? `?category=${category}` : '';
+      const params = new URLSearchParams();
+      if (category && category !== 'All Categories') params.append('category', category);
+      if (status && status !== 'All Status') params.append('status', status);
+
+      const query = params.toString() ? `?${params.toString()}` : '';
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs${query}`);
       const data = await res.json();
       setJobs(data);
@@ -75,8 +81,10 @@ export default function HomePage() {
           <p className="text-gray-500 mt-1">Browse and manage service requests from homeowners</p>
         </div>
 
-        {/* Search + Filter */}
-        <div className="flex gap-3 mb-4">
+        {/* Search + Filters */}
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+
+          {/* Search */}
           <div className="flex-1 relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
             <input
@@ -87,18 +95,29 @@ export default function HomePage() {
               className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">▼</span>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value === 'All Categories' ? '' : e.target.value)}
-              className="pl-8 pr-6 py-2.5 border-2 border-blue-500 rounded-lg text-sm font-medium text-gray-700 focus:outline-none bg-white appearance-none cursor-pointer"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
+
+          {/* Category Filter */}
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value === 'All Categories' ? '' : e.target.value)}
+            className="px-4 py-2.5 border-2 border-blue-500 rounded-lg text-sm font-medium text-gray-700 focus:outline-none bg-white cursor-pointer"
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+
+          {/* Status Filter */}
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value === 'All Status' ? '' : e.target.value)}
+            className="px-4 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:outline-none bg-white cursor-pointer"
+          >
+            {statuses.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+
         </div>
 
         {/* Count */}
@@ -121,7 +140,6 @@ export default function HomePage() {
                 key={job._id}
                 className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition flex flex-col justify-between"
               >
-                {/* Top row - title + status */}
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h2 className="text-base font-bold text-gray-800 leading-snug">{job.title}</h2>
@@ -132,13 +150,13 @@ export default function HomePage() {
                   <p className="text-sm text-gray-500 line-clamp-3 mb-4">{job.description}</p>
                 </div>
 
-                {/* Location + Date */}
                 <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
                   <span>📍 {job.location || 'N/A'}</span>
-                  <span>📅 {new Date(job.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <span>📅 {new Date(job.createdAt).toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                  })}</span>
                 </div>
 
-                {/* Bottom row - category + link */}
                 <div className="flex items-center justify-between">
                   <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${categoryColors[job.category] || 'bg-gray-100 text-gray-600'}`}>
                     {job.category}
