@@ -11,7 +11,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://globaltna-service-request-board.vercel.app'
+    'https://globaltnaservice-request-board.vercel.app/'
   ]
 }));              // allows frontend to talk to this backend
 app.use(express.json());      // lets us read JSON from request body
