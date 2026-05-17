@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
+const API = 'https://globaltna-service-request-board-production.up.railway.app';
+
 export default function JobDetailPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -34,7 +36,7 @@ export default function JobDetailPage() {
 
   async function fetchJob() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${id}`);
+      const res = await fetch(`${API}/api/jobs/${id}`);
       if (!res.ok) {
         router.push('/');
         return;
@@ -52,7 +54,7 @@ export default function JobDetailPage() {
   async function handleUpdateStatus() {
     setUpdating(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${id}`, {
+      const res = await fetch(`${API}/api/jobs/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -73,7 +75,7 @@ export default function JobDetailPage() {
     if (!confirm('Are you sure you want to delete this job?')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${id}`, {
+      const res = await fetch(`${API}/api/jobs/${id}`, {
         method: 'DELETE',
       });
       if (res.ok) {
@@ -122,11 +124,9 @@ export default function JobDetailPage() {
         {/* Main Card */}
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
 
-          {/* Top Section — Title, badges, location, date */}
+          {/* Top Section */}
           <div className="p-8 border-b border-gray-100">
             <h1 className="text-2xl font-bold text-gray-900 mb-3">{job.title}</h1>
-
-            {/* Status + Category badges */}
             <div className="flex items-center gap-2 mb-4">
               <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusColors[job.status]}`}>
                 {job.status}
@@ -135,26 +135,17 @@ export default function JobDetailPage() {
                 {job.category}
               </span>
             </div>
-
-            {/* Location + Date */}
             <div className="flex items-center gap-6 text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                📍 {job.location || 'N/A'}
-              </span>
-              <span className="flex items-center gap-1">
-                📅 {new Date(job.createdAt).toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })} at {new Date(job.createdAt).toLocaleTimeString('en-GB', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
+              <span>📍 {job.location || 'N/A'}</span>
+              <span>📅 {new Date(job.createdAt).toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'short', year: 'numeric',
+              })} at {new Date(job.createdAt).toLocaleTimeString('en-GB', {
+                hour: '2-digit', minute: '2-digit',
+              })}</span>
             </div>
           </div>
 
-          {/* Description Section */}
+          {/* Description */}
           <div className="p-8 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-800 mb-3">Description</h2>
             <p className="text-sm text-gray-600 leading-relaxed">{job.description}</p>
@@ -170,10 +161,7 @@ export default function JobDetailPage() {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span>✉️</span>
-                <a
-                  href={`mailto:${job.contactEmail}`}
-                  className="text-blue-600 hover:underline"
-                >
+                <a href={`mailto:${job.contactEmail}`} className="text-blue-600 hover:underline">
                   {job.contactEmail || 'N/A'}
                 </a>
               </div>

@@ -54,7 +54,7 @@ export default function NewJobPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs`, {
+      const res = await fetch(`https://globaltna-service-request-board-production.up.railway.app/api/jobs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

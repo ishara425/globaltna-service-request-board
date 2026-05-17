@@ -39,7 +39,7 @@ export default function HomePage() {
       if (status && status !== 'All Status') params.append('status', status);
 
       const query = params.toString() ? `?${params.toString()}` : '';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs${query}`);
+      const res = await fetch(`https://globaltna-service-request-board-production.up.railway.app/api/jobs${query}`);
       const data = await res.json();
       setJobs(data);
     } catch (err) {
